@@ -1,4 +1,5 @@
 import { useState } from "react";
+import AuthModal from "./AuthModal";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
@@ -27,7 +28,7 @@ import {
   Headphones,
   Store,
   Package,
-  MessageSquareText,
+  ShieldCheck,
 } from "lucide-react";
 
 interface TopNavProps {
@@ -50,7 +51,7 @@ export default function TopNav({
   const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(searchQuery);
-  const [showManagerDialog, setShowManagerDialog] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -63,33 +64,7 @@ export default function TopNav({
 
   return (
     <header className="topnav-wrapper sticky top-0 z-50">
-      {/* Top Utility Bar */}
-      <div className="topnav-utility-bar">
-        <div className="container topnav-utility-inner">
-          <div className="topnav-utility-left">
-            <span className="topnav-utility-item">
-              <MapPin className="h-3.5 w-3.5" />
-              <span>Deliver to <strong>Lagos</strong></span>
-            </span>
-          </div>
-          <div className="topnav-utility-right">
-            <a href="#" className="topnav-utility-link">
-              <Store className="h-3.5 w-3.5" />
-              Sell on Libertas
-            </a>
-            <span className="topnav-utility-divider" />
-            <a href="#" className="topnav-utility-link">
-              <Headphones className="h-3.5 w-3.5" />
-              Help Center
-            </a>
-            <span className="topnav-utility-divider" />
-            <a href="#" className="topnav-utility-link">
-              <Package className="h-3.5 w-3.5" />
-              Track Order
-            </a>
-          </div>
-        </div>
-      </div>
+
 
       {/* Main Navigation Bar */}
       <nav className="topnav-main">
@@ -128,27 +103,23 @@ export default function TopNav({
 
           {/* Right Action Icons */}
           <div className="topnav-actions">
-            {/* Talk to the Manager */}
-            <button
-              className="topnav-action-item group"
-              id="topnav-manager-btn"
-              onClick={() => setShowManagerDialog(true)}
-            >
-              <div className="relative">
-                <MessageSquareText className="h-5 w-5 transition-transform group-hover:scale-110" />
-                <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            {!isAuthenticated && (
+              <button 
+                onClick={() => setShowAuthModal(true)}
+                className="hidden xl:flex items-center gap-2 px-4 py-2 mr-2 bg-primary hover:bg-primary/95 text-white rounded-full transition-all group shadow-sm active:scale-95 font-medium"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                <span className="text-xs whitespace-nowrap px-1">
+                  Connect Alpha ID
                 </span>
-              </div>
-              <span className="topnav-action-label">Talk to Manager</span>
-            </button>
+              </button>
+            )}
 
-            {/* Wishlist */}
-            <button className="topnav-action-item" id="topnav-wishlist">
-              <Heart className="h-5 w-5" />
-              <span className="topnav-action-label">Wishlist</span>
-            </button>
+            {/* Sell on Libertas */}
+            <a href="#" className="topnav-action-item" id="topnav-sell">
+              <Store className="h-5 w-5" />
+              <span className="topnav-action-label">Sell on Libertas</span>
+            </a>
 
             {/* Cart */}
             <Link href={isAuthenticated ? "/checkout" : getLoginUrl()}>
@@ -226,38 +197,8 @@ export default function TopNav({
       </nav>
 
 
-      {/* Manager Dialog Overlay (Global) */}
-      {showManagerDialog && (
-        <div className="manager-dialog-overlay" onClick={() => setShowManagerDialog(false)}>
-          <div className="manager-dialog" onClick={(e) => e.stopPropagation()} id="manager-dialog">
-            <div className="manager-dialog-header">
-              <div className="manager-dialog-avatar">M</div>
-              <div>
-                <p className="manager-dialog-name">The Manager</p>
-                <p className="manager-dialog-status">
-                  <span className="manager-dialog-online" />
-                  Online now
-                </p>
-              </div>
-              <button className="manager-dialog-close" onClick={() => setShowManagerDialog(false)}>✕</button>
-            </div>
-            <div className="manager-dialog-body">
-              <div className="manager-dialog-bubble">
-                Hello! 👋 I'm the store manager at Libertas Marketplace. Can't find what you're looking for in our stores? Tell me exactly what you need and I'll make it happen — custom orders are our specialty!
-              </div>
-            </div>
-            <div className="manager-dialog-input-area">
-              <input
-                type="text"
-                placeholder="Describe what you're looking for..."
-                className="manager-dialog-input"
-                autoFocus
-              />
-              <button className="manager-dialog-send">Send</button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </header>
   );
 }
